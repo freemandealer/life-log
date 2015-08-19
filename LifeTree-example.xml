@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<life>
+	<time showtype="pie" unit="小时">
+		<mainwork>
+			<study>学习</study>
+			<lab>实验</lab>
+			主要工作
+		</mainwork>
+		<subwork>
+			<reading>读书</reading>
+			<duty>事务</duty>
+			次要工作
+		</subwork>
+		<reflection>回顾</reflection>
+		<social>见朋友:聚餐</social>
+		<sleep>睡眠:睡觉:午睡</sleep>
+		<exercise>锻炼:健身</exercise>
+		<entertainment>娱乐</entertainment>
+		<blackhole></blackhole>
+	</time>	
+	<finance showtype="pie" unit="元">
+		<eat></eat>
+	</finance>
+	<getup showtype="bar">
+	</getup>	
+</life>
