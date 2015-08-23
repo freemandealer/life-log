@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <life>
-	<time showtype="pie" unit="小时">
+	<time showtypeh="pie" unit="hour">
 		<mainwork>
 			<study>学习</study>
 			<lab>实验</lab>
@@ -18,7 +18,7 @@
 		<entertainment>娱乐</entertainment>
 		<blackhole></blackhole>
 	</time>	
-	<finance showtype="pie" unit="元">
+	<finance showtype="pie" unit="yuan">
 		<eat></eat>
 	</finance>
 	<getup showtype="bar">
