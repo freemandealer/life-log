@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*- 
 import sys
 reload(sys)
@@ -23,6 +24,7 @@ def act_not_found(record, line):
     print 'WARNING: in line %d: \'%s\' match no activity' %(line, record)
     print '\033[0m'
 
+# match record with activity from sub-lifetree
 def find_act_from_life_tree(record, line, lnode):
     found = False
     global act_found
@@ -45,16 +47,23 @@ def find_act_from_life_tree(record, line, lnode):
         for i in range(len(lnode.child)):
             find_act_from_life_tree(record, line, lnode.child[i])
 
-
+# analyze record for each category
 def analyze(index, record, line, date):
-    print "Category:" + categories[index].tag
-    find_act_from_life_tree(record, line, lifetree.child[index])
-    global act_found
-    if not act_found:
-        act_not_found(record, line)
+    category = categories[index]
+    print "Category:" + category.tag
+    # this category outputs pie charts
+    if category.attrib['showtype'] == 'pie':
+        find_act_from_life_tree(record, line, lifetree.child[index])
+        global act_found
+        if not act_found:
+            act_not_found(record, line)
+        else:
+            act_found = False
+    # this category outputs bar charts or unknown(default)
     else:
-        act_found = False
+        print 'BAR'
 
+# harvest leaves to sum up count for the root
 def reduce_tree(root):
     # internal nodes
     if root.child:
@@ -65,30 +74,44 @@ def reduce_tree(root):
     else:
         return root.count
 
+def print_usage():
+    print '''USAGE:
+    lifelog.py [life-tree.xml] [log.txt]
+    '''
+
+## START ##
+if len(sys.argv) != 3:
+    print_usage()
+    exit()
+# build ElementTree
+tree = ET.parse(sys.argv[1])
 # check categories from XML
-tree = ET.parse('./LifeTree-Freeman.xml')
 for category in tree.getroot():
     categories.append(category)
     if category.attrib.has_key("categoryflag"):
         categoryflags.append(category.attrib["categoryflag"])
+        if category.attrib['showtype'] not in ['pie', 'bar']:
+            print '\033[1;31;40m'
+            print 'WARNING: \'%s\' has no showtype, using default' %category.tag
+            print '\033[0m'
     else:
         print '\033[1;31;40m'
-        print "Warning: % has no categoryflag", category.tag
+        print 'WARNING: \'%s\' has no categoryflag' %category.tag
         print '\033[0m'
         categoryflags.append("NO-CATEGORY")
-lifetree = LT.build_tree_from_xml('./LifeTree-Freeman.xml')
-
-# analyze log file line by line
-log = open('log.txt')
+# build lifetree
+lifetree = LT.build_tree_from_xml(sys.argv[1])
+log = open(sys.argv[2])
 line = 0
 day_count = 0
+# analyze log file line by line
 for record in log:
     line += 1
     record = record.strip()
     # empty line: ignore
     if not record:
         continue
-    # date line: memorize the date
+    # date line: memorize the date and increase day_count
     if re.search('\[[0-9].[0-3]*[0-9]\]', record):
         date = record
         print '======================='
@@ -107,8 +130,11 @@ for record in log:
             analyze(categoryindex, record, line, date)
             break
     if categorized == False:
-        print "Warning: % cannot be categorized"
+        print "WARNING: % cannot be categorized"
+# sum up
 reduce_tree(lifetree)
+# draw output
+# time
 other_act = day_count * 24 - lifetree.count
 labels = ['other']
 fracs = [other_act]
@@ -116,3 +142,10 @@ for child in lifetree.child[0].child:
     labels.append(child.name)
     fracs.append(child.count)
 drawpie(labels, fracs, "Time Consuming", "./time.png")
+# finance
+labels = []
+fracs = []
+for child in lifetree.child[1].child:
+    labels.append(child.name)
+    fracs.append(child.count)
+drawpie(labels, fracs, lifetree.child[1].name, './' + lifetree.child[1].name + '.png')

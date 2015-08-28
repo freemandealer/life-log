@@ -31,7 +31,6 @@ def text_to_dict(text):
         for act in utf8text.split(';'):
             if act != '':
                 dict.extend([act])
-    print dict
     return dict
 
 def element_to_life_iter(eroot, lroot):
